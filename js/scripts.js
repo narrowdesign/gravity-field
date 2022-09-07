@@ -11,7 +11,7 @@ let windowState = {};
 let contentState = {};
 let canvasState = {}
 
-const gridDensity = 23;
+const gridDensity = 19;
 
 const HALF_PI = Math.PI / 2;
 
@@ -47,7 +47,7 @@ function setCanvasState() {
     colCount: gridDensity,
     layerCount: gridDensity,
     particleCount: gridDensity * gridDensity * gridDensity,
-    particleSpread: 11,
+    particleSpread: 9,
     friction: 0.95,
     gravity: 9.8 / 120 / 60,
     moonGravity: 9.8 / 120 / 60 / 7,
@@ -103,7 +103,8 @@ function createRenderer() {
   } );
   renderer.setPixelRatio( 1 );
   renderer.setSize( window.innerWidth, windowState.height );
-  scene.background = new THREE.Color(0xDBC075);
+  // scene.background = new THREE.Color(0xDBC075);
+  renderer.setClearColor(0x000000, 0); // the default
 
   container.appendChild( renderer.domElement );
 
@@ -111,9 +112,9 @@ function createRenderer() {
 }
 
 function createCamera() {
-  camera = new THREE.PerspectiveCamera( 34.6, windowState.width / windowState.height, 0.01, 5000 );
+  camera = new THREE.PerspectiveCamera( 54.6, windowState.width / windowState.height, 0.01, 5000 );
   camera.aspect = windowState.width / windowState.height;
-  camera.position.z = 13.5;
+  camera.position.z = 8.5;
   camera.lookAt(0,0,0)
 
   scene.add( camera );
@@ -135,9 +136,9 @@ function createEarth() {
     map: earthTextureMap,
     color: 0x000000,
     transparent: true,
-    alphaTest: 0.5,
+    alphaTest: 0.2,
   });
-  const earthOutlineGeometry = new THREE.RingGeometry(1, 1.015, 80, 3);
+  const earthOutlineGeometry = new THREE.RingGeometry(1, 1.02, 80, 3);
   const earthOutlineMaterial = new THREE.MeshBasicMaterial({
     color: 0x020102,
     transparent: true,
@@ -366,7 +367,7 @@ function handleMouseUp() {
 function animate(now, then) {
   const elapsed = now - then;
   const frameDuration = windowState.isScrolling ? 16 : 16;
-  if (elapsed >= frameDuration) {
+  if (elapsed >= 0) {
 
     renderer.render( scene, camera );
     canvasState.particles.forEach((particle, i) => {
@@ -394,7 +395,7 @@ function animate(now, then) {
       }
     })
     canvasState.earth.rotation.x += 0.4 * (windowState.mouseY * Math.PI - canvasState.earth.rotation.x);
-    canvasState.earth.rotation.y += 0.4 * (windowState.mouseX * Math.PI - 0.8 - canvasState.earth.rotation.y);
+    canvasState.earth.rotation.y += 0.4 * (windowState.mouseX * Math.PI - 0.8 - canvasState.earth.rotation.y + now * 0.0001);
     canvasState.vectorsContainer.rotation.x += 0.4 * (windowState.mouseY * Math.PI - canvasState.vectorsContainer.rotation.x);
     canvasState.vectorsContainer.rotation.y += 0.4 * (windowState.mouseX * Math.PI - canvasState.vectorsContainer.rotation.y);
     canvasState.particlesContainer.rotation.x += 0.4 * (windowState.mouseY * Math.PI - canvasState.particlesContainer.rotation.x);
