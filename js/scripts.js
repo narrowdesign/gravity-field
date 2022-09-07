@@ -128,7 +128,7 @@ function createLights() {
 }
 
 function createEarth() {
-  const earthTextureMap = new THREE.TextureLoader().load('../map.png')
+  const earthTextureMap = new THREE.TextureLoader().load('map.png')
   earthTextureMap.anisotropy = 10;
   const earthGeometry = new THREE.SphereGeometry(1, 112, 112);
   const earthMaterial = new THREE.MeshBasicMaterial({
