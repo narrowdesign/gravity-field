@@ -11,6 +11,8 @@ let windowState = {};
 let contentState = {};
 let canvasState = {}
 
+const BASE_GRAVITY = 9.8 / 10 / 120 / 60 / 60;
+
 const gridDensity = 19;
 
 const HALF_PI = Math.PI / 2;
@@ -49,9 +51,9 @@ function setCanvasState() {
     particleCount: gridDensity * gridDensity * gridDensity,
     particleSpread: 9,
     friction: 0.95,
-    gravity: 9.8 / 120 / 60,
+    gravity: BASE_GRAVITY,
     moonGravity: 9.8 / 120 / 60 / 7,
-    particles: [],
+    particles: canvasState.particles || [],
     earthGravityLines: canvasState.earthGravityLines || new THREE.Group(),
     earthGravityLinesLat: canvasState.earthGravityLinesLat || new THREE.Group(),
     earthGravityLinesLng: canvasState.earthGravityLinesLng || new THREE.Group(),
@@ -64,7 +66,8 @@ setTimeout(() => {
   init()
 }, 200);
 
-function handleScroll() {
+function handleScroll(e) {
+  canvasState.gravity = Math.min(9.8 / 10 / 120 / 60 * 30, Math.max(0, canvasState.gravity + e.deltaY * 0.00001))
   windowState.isScrolling = true;
   clearTimeout(windowState.scrollTimeout)
   windowState.scrollTimeout = setTimeout(() => {
@@ -72,6 +75,7 @@ function handleScroll() {
   }, 300)
   let oldScrollY = windowState.scrollY
   windowState.scrollY = window.scrollY;
+
 }
 
 function init() {
@@ -308,9 +312,7 @@ function addEventListeners() {
   window.addEventListener('mouseup', handleMouseUp)
   window.addEventListener('keydown', handleKeydown)
   window.addEventListener('keyup', handleKeyup)
-  window.addEventListener('scroll', () => {
-    requestAnimationFrame(handleScroll);
-  });
+  window.addEventListener('wheel', handleScroll);
 }
 
 function handleKeydown(e) {
@@ -330,6 +332,11 @@ function handleKeydown(e) {
     case ' ':
       canvasState.isJumping = true;
       break;
+    case 'e':
+      canvasState.earthOutline.position.x = canvasState.earthOutline.position.x === 0 ? 100 : 0
+      canvasState.earthFill.position.x = canvasState.earthFill.position.x === 0 ? 100 : 0
+      canvasState.earth.position.x = canvasState.earth.position.x === 0 ? 100 : 0
+      break;
     }
   }
   
@@ -346,6 +353,21 @@ function handleKeydown(e) {
         break;
       case 'ArrowRight':
         canvasState.isRightMotion = false;
+        break;
+      case '1':
+        canvasState.gravity = BASE_GRAVITY
+        break;
+      case '2':
+        canvasState.gravity = BASE_GRAVITY * 10
+        break;
+      case '3':
+        canvasState.gravity = BASE_GRAVITY * 100
+        break;
+      case '4':
+        canvasState.gravity = BASE_GRAVITY * 1000
+        break;        
+      case '0':
+        canvasState.gravity = 0
         break;
   }
 }
@@ -372,11 +394,11 @@ function animate(now, then) {
     renderer.render( scene, camera );
     canvasState.particles.forEach((particle, i) => {
       const earthDist = Math.sqrt(Math.pow(particle.position.x, 2) + Math.pow(particle.position.y, 2) + Math.pow(particle.position.z, 2));
-      const moonDist = Math.sqrt(Math.pow(canvasState.moon.position.x - particle.position.x, 2) + Math.pow(canvasState.moon.position.y - particle.position.y, 2) + Math.pow(canvasState.moon.position.z - particle.position.z, 2));
+      
       const aX = particle.position.x * canvasState.gravity / (earthDist * earthDist)// - ((canvasState.moon.position.x - particle.position.x) * canvasState.moonGravity / (moonDist * moonDist * 4));
       const aY = particle.position.y * canvasState.gravity / (earthDist * earthDist)// - ((canvasState.moon.position.y - particle.position.y) * canvasState.moonGravity / (moonDist * moonDist * 4));
       const aZ = particle.position.z * canvasState.gravity / (earthDist * earthDist)// - ((canvasState.moon.position.z - particle.position.z) * canvasState.moonGravity / (moonDist * moonDist * 4));
-      if (earthDist < 0.5) {
+      if (earthDist < 0.2) {
         resetParticle(particle, i);
       } else {
         const speed = Math.sqrt(Math.pow(particle.userProps.vX, 2) + Math.pow(particle.userProps.vY, 2) + Math.pow(particle.userProps.vZ, 2));

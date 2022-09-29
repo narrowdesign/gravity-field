@@ -6,6 +6,7 @@ body {
   background: #DBC075;
   /* background-image: url(grit.png); */
   color: white;
+  overflow: hidden;
 }
 
 canvas {
