@@ -11,7 +11,7 @@ let windowState = {};
 let contentState = {};
 let canvasState = {}
 
-const BASE_GRAVITY = 9.8 / 10 / 120 / 60 / 60;
+const BASE_GRAVITY = 9.8 / 10 / 120 / 60;
 
 const gridDensity = 19;
 
